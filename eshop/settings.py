@@ -37,7 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # Apps propias:
+    
     'categoria',
+    'cuentas',
 ]
 
 MIDDLEWARE = [
@@ -70,6 +74,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'eshop.wsgi.application'
 
+AUTH_USER_MODEL = 'cuentas.Cuenta' #  Conectamos la app cuentas y su modelo, respectivamente.
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -122,6 +127,7 @@ STATICFILES_DIRS = [
     'eshop/static',
     'next_static_folder',
 ]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
