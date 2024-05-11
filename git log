@@ -1,0 +1,17 @@
+[33mcommit 54123e0ea4dc821af8817547e461c6a1a787fa4c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
+Author: nowom <paolasanzramos@gmail.com>
+Date:   Wed May 8 12:20:31 2024 +0200
+
+    Tercer commit: Se han cargado los productos y sus categorias, hay un problema con la visualizacion de imagenes
+
+[33mcommit ab167ad70fd60f86482745111e1cc3dd45a5817d[m
+Author: nowom <paolasanzramos@gmail.com>
+Date:   Tue May 7 14:25:06 2024 +0200
+
+    Segundo commit: creadas las categorías
+
+[33mcommit a5ba0346655d72851407935911d3ec238a474f8e[m
+Author: nowom <paolasanzramos@gmail.com>
+Date:   Tue May 7 12:08:04 2024 +0200
+
+    Primer commit: Creada la web, el superuser, implementado el frontend en web principal.

@@ -1,18 +1,15 @@
-{% extends 'base.html' %}
-
+{% extends "base.html" %}
 
 {% load static %}
+
 {% block content %}
-
-
  
-
 <!-- ========================= SECTION MAIN ========================= -->
 <section class="section-intro padding-y-sm">
 <div class="container">
 
 <div class="intro-banner-wrap">
-	<img src="{% static 'images/banners/1.jpg' %}" class="img-fluid rounded">
+	<img src="{% static 'images/banners/cover.jpg' %}" class="img-fluid rounded">
 </div>
 
 </div> <!-- container //  -->
@@ -24,7 +21,7 @@
 <div class="container">
 
 <header class="section-heading">
-	<a href="./store.html" class="btn btn-outline-primary float-right">Ver todo</a>
+	<a href="{% url 'tienda' %}" class="btn btn-outline-primary float-right">Ver todo</a>
 	<h3 class="section-title">Productos más populares</h3>
 </header><!-- sect-heading -->
 
@@ -33,9 +30,9 @@
 	  {% for producto in productos %}
 	<div class="col-md-3">
 		<div class="card card-product-grid">
-			<a href="./product-detail.html" class="img-wrap"><img src="{% static producto.imagenes.url %}"></a>
+			<a href="{{ producto.get_url }}" class="img-wrap"><img src="{{ producto.images.urls }}"></a>
 			<figcaption class="info-wrap">
-				<a href="./product-detail.html" class="title">{{producto.nombre_producto}}</a>
+				<a href="{{ producto.get_url }}" class="title">{{ producto.nombre_producto }}</a>
 				<div class="price mt-1">{{ producto.precio }}€</div> <!-- price-wrap.// -->
 			</figcaption>
 		</div>
@@ -48,5 +45,4 @@
 <!-- ========================= SECTION  END// ========================= -->
 </body>
 </html>
-
 {% endblock %}
