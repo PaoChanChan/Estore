@@ -25,7 +25,7 @@
                     <h6 class="title">Categorías</h6>
                 </a>
             </header>
-            <div class="filter-content collapse show" id="collapse_1" style="">
+            <div class="filter-content collapse show" id="collapse_1">
                 <div class="card-body">
                     
                     <ul class="list-menu">
@@ -45,7 +45,7 @@
                     <h6 class="title">Sizes </h6>
                 </a>
             </header>
-            <div class="filter-content collapse show" id="collapse_4" style="">
+            <div class="filter-content collapse show" id="collapse_4">
                 <div class="card-body">
                   <label class="checkbox-btn">
                     <input type="checkbox">
@@ -77,7 +77,7 @@
                     <h6 class="title">Filtrar por precio </h6>
                 </a>
             </header>
-            <div class="filter-content collapse show" id="collapse_3" style="">
+            <div class="filter-content collapse show" id="collapse_3">
                 <div class="card-body">
                     
                     <div class="form-row">
@@ -131,7 +131,7 @@
             <figure class="card card-product-grid">
                 <div class="img-wrap"> 
                     
-                  <a href="{{ producto.get_url }}"><img src="{{ producto.imagen.urls }}"></a>
+                  <a href="{{ producto.get_url }}"><img src="{{ producto.imagen.urls }}" height="" width="" alt=""></a>
                     
                 </div> <!-- img-wrap.// -->
                 <figcaption class="info-wrap">
@@ -141,7 +141,7 @@
                             <span class="price">{{ producto.precio }}</span>
                         </div> <!-- price-wrap.// -->
                     </div>
-                    <a href="#" class="btn btn-block btn-primary">Añadir al carrito </a>
+                    <a href="{% url 'add_cart' producto.id %}" class="btn btn-block btn-primary">Añadir al carrito </a>
                 </figcaption>
             </figure>
         </div> <!-- col.// -->
@@ -166,4 +166,4 @@
     </div> <!-- container .//  -->
     </section>
     <!-- ========================= SECTION CONTENT END// ========================= -->
-{% endblock %}
+{% endblock content %}

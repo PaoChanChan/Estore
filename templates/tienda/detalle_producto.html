@@ -11,7 +11,7 @@
             <aside class="col-md-6">
     <article class="gallery-wrap"> 
         <div class="img-big-wrap">
-           <a href="#"><img src=" {{ producto_unico.images.url }} "></a>
+           <a href="#"><img src=" {{ producto_unico.imagen.url }} "></a>
         </div> <!-- img-big-wrap.// -->
         
     </article> <!-- gallery-wrap .end// -->
@@ -69,9 +69,14 @@
         </div> <!-- row.// -->
         <hr>
         {% if producto_unico.stock_disponible <= 0 %}
-        <h5 class="text-danger">Agotado</h5>
-        {% else %}
-        <a href="{{ producto_unico.get_url }}" class="btn  btn-primary"> <span class="text">Add to cart</span> <i class="fas fa-shopping-cart"></i>  </a>
+          <h5 class="text-danger">Agotado</h5>
+          {% else %}
+            {% if in_cart %}
+            <a href="#" class="btn  btn-success"> <span class="text">Añadido al carrito</span> <i class="fas fa-check"></i>  </a>
+            <a href="{% url 'cart'}" class="btn  btn-outline-primary"> <span class="text">Ver carrito</span> <i class="fas fa-eye"></i>  </a>
+            {% else %}
+            <a href="{% url 'add_cart' producto_unico.id %}" class="btn  btn-primary"> <span class="text">Añadir al carrito</span> <i class="fas fa-shopping-cart"></i>  </a>
+            {% endif %}
         {% endif %}
     </article> <!-- product-info-aside .// -->
             </main> <!-- col.// -->
@@ -117,4 +122,4 @@
     </section>
     <!-- ========================= SECTION CONTENT END// ========================= -->
 
-{% endblock %}
+{% endblock content %}

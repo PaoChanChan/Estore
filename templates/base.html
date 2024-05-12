@@ -41,17 +41,18 @@ $(document).ready(function() {
 </script>
 
 </head>
-<body>
-
     <!--NAVBAR-->
 
-    {% include 'includes/navbar.html' %}
+    {% include "includes/navbar.html" %}
 
     {% block content %}
 
     <!-- content -->
 
-    {% endblock %}
+    {% endblock content %}
 
     <!--FOOTER-->
-    {% include 'includes/footer.html' %}
+    {% include "includes/footer.html" %}
+
+</body>
+</html>
