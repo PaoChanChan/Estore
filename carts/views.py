@@ -14,18 +14,19 @@ def _cart_id(request):
 
 def add_cart(request, id_producto):
     """Función para agregar items al carrito"""
+    producto = Producto.objects.get(id=id_producto) # Coger el producto
+    variacion_producto = []
     if request.method == 'POST':
         for item in request.POST:
             key = item
             value = request.POST[key]
             
             try:
-                variacion = Variaciones.objects.get(variacion_categoria__iexact=key, valor_variacion__iexact=value)
+                variacion = Variaciones.objects.get(producto=producto, variacion_categoria__iexact=key, valor_variacion__iexact=value)
+                variacion_producto.append(variacion)
                 print(variacion)
             except:
-                pass
-            
-    producto = Producto.objects.get(id=id_producto) # Coger el producto
+                pass          
    
     try:
         cart = Cart.objects.get(cart_id=_cart_id(request)) # Hace que el carrito coja la id (key) en el momento.
