@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from tienda.models import Producto
+from tienda.models import Producto, Variaciones
 from .models import Cart, CartItem
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
@@ -14,6 +14,17 @@ def _cart_id(request):
 
 def add_cart(request, id_producto):
     """Función para agregar items al carrito"""
+    if request.method == 'POST':
+        for item in request.POST:
+            key = item
+            value = request.POST[key]
+            
+            try:
+                variacion = Variaciones.objects.get(variacion_categoria__iexact=key, valor_variacion__iexact=value)
+                print(variacion)
+            except:
+                pass
+            
     producto = Producto.objects.get(id=id_producto) # Coger el producto
    
     try:
@@ -79,4 +90,4 @@ def cart(request, total=0, cantidad=0, cart_items=None):
         'precio_final' : precio_final,
     }
     
-    return render(request, 'tienda/cart.html', context) # Renderizar la plantilla del carrito con el contexto"""
+    return render(request, 'tienda/cart.html', 'tienda/producto_unico.html', context) # Renderizar la plantilla del carrito con el contexto"""
