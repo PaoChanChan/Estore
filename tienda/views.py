@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Producto
+from .models import Producto, Variaciones
 from categoria.models import Categoria
 from carts.models import CartItem
 from django.db.models import Q
@@ -51,9 +51,13 @@ def detalle_producto(request, categoria_slug, producto_slug):
     except Exception as e:
         raise e
     
+    colores = Variaciones.objects.filter(producto=producto_unico, variacion_categoria='color')
+    marcas = Variaciones.objects.filter(producto=producto_unico, variacion_categoria='marca')
     context = {
         'producto_unico': producto_unico,
         'in_cart' : in_cart,
+        'colores' : colores,
+        'marcas' : marcas
     }
         
     return render(request, 'tienda/detalle_producto.html', context)

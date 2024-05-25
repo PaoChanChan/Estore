@@ -1,0 +1,12 @@
+{% autoescape off %}
+
+Hola, {{ usuario.nombre }},
+
+para verificar tu cuenta, necesitamos que vayas a este link y confirmes tu alta en nuestra web.
+http://{{domain}}{% url 'activar' uidb64=uid token=token %}
+
+Si crees que este email no es para tí, por favor, ignóralo.
+
+¡Gracias!
+
+{% endautoescape %}
