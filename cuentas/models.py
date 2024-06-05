@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 # Create your models here.
 
 class CuentaManager(BaseUserManager):
-    def create_user(self, nombre, apellido, username, email, telefono, password=None):
+    def create_user(self, nombre, apellido, username, email, password=None):
         if not email:
             raise ValueError('El usuario debe tener un email')
         
@@ -17,7 +17,6 @@ class CuentaManager(BaseUserManager):
             username = username,
             nombre = nombre,
             apellido = apellido,
-            telefono = telefono
         )
         
         user.set_password(password)
@@ -77,4 +76,17 @@ class Cuenta(AbstractBaseUser):
         #  Método que se utiliza para determinar si un usuario tiene permisos para acceder a un módulo específico en la aplicación
         return True
     
+class PerfilUsuario(models.Model):
+    
+    usuario = models.OneToOneField(Cuenta, on_delete=models.CASCADE)
+    direccion_1 = models.CharField(blank=True, max_length=100)
+    direccion_2 = models.CharField(blank=True, max_length=100)
+    ciudad = models.CharField(blank=True, max_length=20)
+    municipio = models.CharField(blank=True, max_length=20)
+    pais = models.CharField(blank=True, max_length=20)
 
+    def __str__(self):
+        return self.usuario.nombre
+
+    def full_address(self):
+        return f'{self.direccion_1} {self.direccion_2}'

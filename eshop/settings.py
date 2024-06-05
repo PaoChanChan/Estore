@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -44,6 +46,8 @@ INSTALLED_APPS = [
     'cuentas',
     'tienda',
     'carts',
+    'pedidos',
+    
 ]
 
 MIDDLEWARE = [
@@ -55,6 +59,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+SESSION_EXPIRE_SECONDS = 3600  # 1 hora
+SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+SESSION_TIMEOUT_REDIRECT = 'cuentas/login'
 
 ROOT_URLCONF = 'eshop.urls'
 

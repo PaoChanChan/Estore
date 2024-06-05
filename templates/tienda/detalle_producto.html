@@ -38,7 +38,7 @@
                       <select name="color" class="form-control" required>
                         <option value="" disabled selected>Elige un color</option>
                         {% for color in colores %}
-                        <option value="{{ i.valor_variacion }}">{{ i.valor_variacion | capfirst }}</option>
+                        <option value="{{ color.valor_variacion }}">{{ color.valor_variacion | capfirst }}</option>
                         {% endfor %}
                       </select>
                   </div>
@@ -50,7 +50,7 @@
                         <option value="" disabled selected>Marca</option>
 
                         {% for marca in marcas %}
-                        <option value="{{ i.valor_variacion | lower }}">{{ i.valor_variacion | capfirst }}</option>
+                        <option value="{{ marca.valor_variacion | lower }}">{{ marca.valor_variacion | capfirst }}</option>
                         {% endfor %}
       
                         </select>
@@ -76,7 +76,7 @@
                 <div class="col-md-9">
     
         <header class="section-heading">
-            <h3>Customer Reviews </h3>  
+            <h3>Opiniones de clientes </h3>  
             
         </header>
     

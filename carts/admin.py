@@ -6,7 +6,7 @@ class CartAdmin(admin.ModelAdmin):
     list_display = ['cart_id', 'fecha_creacion']
     
 class CartItemAdmin(admin.ModelAdmin):
-    list_display = ['producto', 'cart', 'cantidad', 'activo']
+    list_display = ['producto', 'cart', 'cantidad', 'is_active']
     
     
     

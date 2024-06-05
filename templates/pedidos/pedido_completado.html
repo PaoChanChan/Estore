@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<div class="container" style="margin-top: 50px;">
+    <center><i class="fas fa-check-circle" style="font-size: 72px;margin-bottom: 20px;color: #28A745;"></i></center>
+    <h2 class="text-center">Pago efectuado con éxito</h2>
+	<br>
+	<div class="text-center">
+		<a href="{% url 'store' %}" class="btn btn-success">Seguir comprando</a>
+	</div>
+</div>
+
+<div class="container" style="margin: 0 auto;width: 50%;padding: 50px;background: #f1f1f1;margin-top: 50px;margin-bottom: 50px;">
+    <div class="row invoice row-printable">
+        <div class="col-md-12">
+            <!-- col-lg-12 start here -->
+            <div class="panel panel-default plain" id="dash_0">
+                <!-- Start .panel -->
+                <div class="panel-body p30">
+                    <div class="row">
+                        <!-- Start .row -->
+                        <div class="col-lg-6">
+                            <!-- col-lg-6 start here -->
+                            <div class="invoice-logo"><img src="{% static '/imagen/logo.png' %}" alt="Invoice logo" style="max-height: 40px;"></div>
+                        </div>
+                        <!-- col-lg-6 end here -->
+                        <div class="col-lg-6">
+                            <!-- col-lg-6 start here -->
+                            <div class="invoice-from">
+                                <ul class="list-unstyled text-right">
+                                    <li><strong>Datos de facturación</strong></li>
+                                    <li>{{pedido.full_name}}</li>
+                                    <li>{{pedido.full_address}}</li>
+                                    <li>{{pedido.ciudad}}, {{pedido.municipio}}</li>
+                                    <li>{{pedido.pais}}</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- col-lg-6 end here -->
+                        <div class="col-lg-12">
+                            <!-- col-lg-12 start here -->
+                            <div class="invoice-details mt25">
+                                <div class="well">
+                                    <ul class="list-unstyled mb0">
+                                        <li><strong>Pedido:</strong> #{{numero_pedido}}</li>
+                                        <li><strong>Código de transacción:</strong> {{transID}}</li>
+                                        <li><strong>Fecha del pedido:</strong> {{pedido.fecha}}</li>
+                                        <li><strong>Estado:</strong> {{pago.estado}}</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="invoice-items">
+                                <div class="table-responsive" style="overflow: hidden; outline: none;" tabindex="0">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th class="per70 text-center">Productos</th>
+                                                <th class="per5 text-center">Cantidad</th>
+                                                <th class="per25 text-center">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                          {% for item in productos_pedidos %}
+                                            <tr>
+                                                <td>{{item.producto.nombre_producto}}
+                                                  <p class="text-muted small">
+                                          					{% if item.variaciones.all %}
+                                          						{% for i in item.variaciones.all %}
+                                          							{{ item.variacion_categoria | capfirst }} : {{ i.valor_variacion | capfirst }} <br>
+                                          						{% endfor %}
+                                          					{% endif %}
+                                          				</p>
+                                                </td>
+                                                <td class="text-center">{{item.cantidad}}</td>
+                                                <td class="text-center">${{item.precio_producto}} EUR</td>
+                                            </tr>
+                                          {% endfor %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="2" class="text-right">Importe:</th>
+                                                <th class="text-center">${{total}} EUR</th>
+                                            </tr>
+                                            <tr>
+                                                <th colspan="2" class="text-right">Iva:</th>
+                                                <th class="text-center">${{pedido.iva}} EUR</th>
+                                            </tr>
+
+                                            <tr>
+                                                <th colspan="2" class="text-right">Importe final:</th>
+                                                <th class="text-center">${{pedido.precio_total_pedido}} EUR</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="invoice-footer mt25">
+                                <p class="text-center">¡Gracias por confiar en nosotros!</p>
+                            </div>
+                        </div>
+                        <!-- col-lg-12 end here -->
+                    </div>
+                    <!-- End .row -->
+                </div>
+            </div>
+            <!-- End .panel -->
+        </div>
+        <!-- col-lg-12 end here -->
+    </div>
+    </div>
+
+
+{% endblock %}

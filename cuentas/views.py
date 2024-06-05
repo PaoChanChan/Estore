@@ -1,21 +1,20 @@
-from django.shortcuts import render, redirect
-from .forms import RegistroForm
-from .models import Cuenta
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import RegistroForm, UsuarioForm, PerfilUsuarioForm
+from .models import Cuenta, PerfilUsuario
+from pedidos.models import Pedido, ProductoPedido
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_protect
 
-# Verificación email:
-from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes
-from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import EmailMessage
+from carts.views import _cart_id
+from carts.models import Cart, CartItem
+import requests
 
 # Create your views here.
 
 def registrarse(request):
+    """Función para crear una cuenta"""
     
     if request.method == 'POST':
         form = RegistroForm(request.POST)
@@ -24,33 +23,22 @@ def registrarse(request):
             apellido = form.cleaned_data['apellido']
             email = form.cleaned_data['email']
             username = email.split("@")[0]
-            telefono = form.cleaned_data['telefono']
             password = form.cleaned_data['password']
             
             usuario = Cuenta.objects.create_user(nombre=nombre,
                                                   apellido=apellido,
                                                   username=username,
                                                   email=email,
-                                                  telefono=telefono,
                                                   password=password)
-            usuario.telefono = telefono
             usuario.save()
+            print(usuario.nombre)
             
-            #  EMAIL DE ACTIVACION DEL USUARIO
-            current_site = get_current_site(request)
-            mail_subject = 'Verificación de cuenta en CachaRock'
-            message = render_to_string('cuentas/email_verificacion_cuenta.html', {
-                'usuario': usuario,
-                'dominio' : current_site,
-                'uid' : urlsafe_base64_encode(force_bytes(usuario.pk)),
-                'token' : default_token_generator.make_token(usuario),
-            })
+            #  CREACIÓN DE PERFIL DE USUARIO
+            perfil = PerfilUsuario(usuario=usuario, direccion_1='', direccion_2='',
+                                    ciudad='', municipio='', pais='')
+            perfil.save()
+            perfil.id_usuario = usuario.id
             
-            to_email = email
-            send_email = EmailMessage(mail_subject, message, to=[to_email])
-            send_email.send()
-            #messages.success(request, 'Gracias por registrarte, te hemos enviado un email para verificar tu cuenta.')
-            return redirect('/cuentas/login/?command=verificacion&email='+email)
 
     else:
         form = RegistroForm()
@@ -60,7 +48,7 @@ def registrarse(request):
     }
     return render(request, 'cuentas/registrarse.html', context)
 
-
+@csrf_protect
 def login(request):
     """Función para acceder a la cuenta"""
     
@@ -70,113 +58,183 @@ def login(request):
         
         usuario = auth.authenticate(email=email, password=password)
         
-        if usuario is not None and usuario.is_active:
+        if usuario is not None:
+            
+            try:
+                #print("Try Block")
+                cart = Cart.objects.get(cart_id=_cart_id(request))
+                is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
+                #print(is_cart_item_exists)
+                if is_cart_item_exists:
+                    cart_item = CartItem.objects.filter(cart=cart)
+                    #print(cart_item)
+                    
+                    # Extraer variaciones de los productos por el id del carrito                   
+                    variacion_productos = []
+                    for item in cart_item:
+                        variacion = item.variaciones.all()
+                        variacion_productos.append(list(variacion))               
+
+                    # Extraer los items del carrito del usuario para acceder a las variaciones de sus productos
+                    cart_item = CartItem.objects.filter(usuario=usuario)
+                    lista_variaciones = item.variaciones.all()
+                    lista_variaciones = []
+                    lista_id = []
+                    for item in cart_item:
+                        variacion = item.variaciones.all()
+                        lista_variaciones.append(list(variacion))
+                        id.append(item.id)
+                        
+                    for pr in variacion_productos:
+                        if pr in lista_variaciones:
+                            index = lista_variaciones.index(pr)
+                            item_id = id[index]
+                            item = CartItem.objects.get(id=item_id)
+                            item.cantidad +=1
+                            item.usuario=usuario
+                            item.save()
+                        else:
+                            cart_item = CartItem.objects.filter(cart=cart)
+                            for item in cart_item:
+                                item.usuario=usuario
+                                item.save()
+            except:
+                #print("Except Block")
+                pass
+            
             auth.login(request, usuario)
             messages.success(request, 'Estás conectado/a.')
-            return redirect('dashboard')
-        else:
-            messages.error(request, 'Credenciales erróneas o cuenta no verificada. Inténtalo de nuevo.')
-            return redirect('login')
+            url = request.META.get('HTTP_REFERER')
+            try:
+                query = requests.utils.urlparse(url).query
+                # next=/cart/checkout/
+                params = dict(x.split('=') for x in query.split('&'))
+                if 'next' in params:
+                    nextPage = params['next']
+                    return redirect(nextPage)
+            except:
+             return redirect('dashboard')
         
+        else:
+            messages.error(request, 'Credenciales erróneas. Inténtalo de nuevo.')
+            return redirect('login')
     return render(request, 'cuentas/login.html')
 
+
 @login_required(login_url = 'login')   # Solo podemos salir si estamos dentro.
-def logout(request):
+def logout(request): 
+    """Función para cerrar sesión"""
     
     auth.logout(request)
     messages.success(request, '¡Hasta pronto!')
-    
     return redirect('login')
+    
 
-def activar(request, uidb64, token):
-    
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        usuario = Cuenta._default_manager.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, Cuenta.DoesNotExist):
-        usuario = None  
-    
-    if usuario is not None and default_token_generator.check_token(usuario, token):
-        usuario.is_active = True
-        usuario.save()
-        messages.success(request, 'Enhorabuena, tu cuenta ha sido activada.')
-        return redirect('login')
-    else:
-        messages.error(request, 'Link de activación defectuoso')
-        return redirect('registrarse')
-    
 @login_required(login_url = 'login')  
 def dashboard(request):
     """Función para mostrar el dashboard de la cuenta."""
     
-    return render(request, 'cuentas/dashboard.html')
-
-def forgotPassword(request):
-    """Función para recuperar contraseñas"""
+    pedidos = Pedido.objects.order_by('-fecha').filter(usuario_id=request.user.id, confirmado=True)
+    cantidad_pedidos = pedidos.count()
     
+    perfil_usuario = PerfilUsuario.objects.get(usuario_id=request.user.id)
+    
+    context = {
+        'cantidad_pedidos' : cantidad_pedidos,
+        'perfil_usuario' : perfil_usuario,
+    }
+    return render(request, 'cuentas/dashboard.html', context)
+    
+@login_required(login_url='login')
+def mis_pedidos(request):   
+    """Función para mostrar todos los pedidos del usuario cliente"""
+    
+    pedidos = Pedido.objects.filter(usuario=request.user, confirmado=True).order_by('-fecha')
+    context = {
+        'pedidos': pedidos,
+    }
+    return render(request, 'cuentas/mis_pedidos.html', context)
+
+# @login_required(login_url='login')
+# def mis_ventas(request):
+#     """Función para mostrar las ventas del usuario vendedor"""
+    
+#     if request.user.is_seller == True:
+        
+        
+        
+        
+#     else:
+    
+#         return redirect('cuentas/mis_pedidos.html')
+    
+    
+@login_required(login_url='login')
+def editar_perfil(request): 
+    """Función de edición de perfil"""
+    
+    perfil_usuario = get_object_or_404(PerfilUsuario, usuario=request.user)
     if request.method == 'POST':
-        email = request.POST['email']
-        if Cuenta.objects.filter(email=email).exists():
-            usuario = Cuenta.objects.get(email__exact=email)
-            #  EMAIL DE RESTAURACIÓN DE CONTRASEÑAS
-            current_site = get_current_site(request)
-            mail_subject = 'Restaurar contraseña'
-            message = render_to_string('cuentas/email_restaurar_password.html', {
-                'usuario': usuario,
-                'dominio' : current_site,
-                'uid' : urlsafe_base64_encode(force_bytes(usuario.pk)),
-                'token' : default_token_generator.make_token(usuario),
-            })
-            
-            to_email = email
-            send_email = EmailMessage(mail_subject, message, to=[to_email])
-            send_email.send()
-            
-            messages.success(request, 'Te hemos enviado un email para restaurar tu contraseña.')
-            return redirect('login')
-            
-        else:
-            messages.error(request,'La cuenta no existe')   
-            return redirect('forgotPassword')
-            
-    return render(request, 'cuentas/forgotPassword.html')
-
-
-def resetpassword_validar(request, uidb64, token):
-    """Función para validar la neuva contraseña"""
-      
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        usuario = Cuenta._default_manager.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, Cuenta.DoesNotExist):
-        usuario = None  
-    
-    if usuario is not None and default_token_generator.check_token(usuario, token):
-        request.session['uid'] = uid
-        messages.success(request, 'Por favor, introduce tu nueva contraseña')
-        return redirect('resetPassword')
+        usuario_form = UsuarioForm(request.POST, instance=request.user)
+        perfil_form = PerfilUsuarioForm(request.POST, request.FILES, instance=perfil_usuario)
+        if usuario_form.is_valid() and perfil_form.is_valid():
+            usuario_form.save()
+            perfil_form.save()
+            messages.success(request, 'Se ha actualizado tu perfil.')
+            return redirect('editar_perfil')
     else:
-        messages.error(request, 'Este enlace ha expirado.')
-        return redirect('login')
-    
+        usuario_form = UsuarioForm(instance=request.user)
+        perfil_form = PerfilUsuarioForm(instance=perfil_usuario)
+    context = {
+        'usuario_form': usuario_form,
+        'perfil_form': perfil_form,
+        'perfil_usuario': perfil_usuario,
+    }
+    return render(request, 'cuentas/editar_perfil.html', context)
 
-def resetPassword(request):
+
+@login_required(login_url='login')
+def cambiar_password(request):    
+    """Función para cambiar contraseña"""
+    
     if request.method == 'POST':
-        password = request.POST['password']
+        current_password = request.POST['current_password']
+        new_password = request.POST['new_password']
         confirm_password = request.POST['confirm_password']
-        
-        if password == confirm_password:
-            uid = request.session.get('uid')
-            usuario = Cuenta.objects.get(pk=uid)
-            usuario.set_password(password)  #  Función necesaria de Django para que la base de datos recoja la nueva contraseña
-            usuario.save()
-            messages.success(request, 'Contraseña restaurada con éxito.')
-            return redirect('login')
-        
+
+        usuario = Cuenta.objects.get(username__exact=request.user.username)
+
+        if new_password == confirm_password:
+            success = usuario.check_password(current_password)
+            if success:
+                usuario.set_password(new_password)
+                usuario.save()
+                # auth.logout(request)
+                messages.success(request, 'Contraseña modificada con éxito.')
+                return redirect('cambiar_password')
+            else:
+                messages.error(request, 'Por favor, ingresa la contraseña actual.')
+                return redirect('cambiar_password')
         else:
-            messages.error(request, 'Las contraseñas no coinciden.')
-            return redirect('resetPassword')
-    else:
-           
-        return render(request, 'cuentas/resetPassword.html')
+            messages.error(request, 'La contraseña no coincide.')
+            return redirect('cambiar_password')
+    return render(request, 'cuentas/cambiar_password.html')
+
+
+@login_required(login_url='login')
+def detalle_pedido(request, id_pedido):  
+    """Función para mostrar los detalles de un pedido en concreto"""
+    
+    detalle_pedido = ProductoPedido.objects.filter(pedido__numero_pedido=id_pedido)
+    pedido = Pedido.objects.get(numero_pedido=id_pedido)
+    total = 0
+    for i in detalle_pedido:
+        total += i.precio_producto * i.cantidad
+
+    context = {
+        'detalle_pedido': detalle_pedido,
+        'pedido': pedido,
+        'total': total,
+    }
+    return render(request, 'cuentas/detalle_pedido.html', context)
 

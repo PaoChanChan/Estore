@@ -5,56 +5,52 @@
 <section class="section-content padding-y">
 
     <!-- ============================ COMPONENT REGISTER   ================================= -->
-        <div class="card mx-auto" style="max-width:520px; margin-top:40px;">
-          <article class="card-body">
+    <div class="card mx-auto" style="max-width:520px; margin-top:40px;">
+        <article class="card-body">
             {% include 'includes/alerts.html' %}
-            <header class="mb-4"><h4 class="card-title">Registrarse</h4></header>
-            <form action ="{% url 'registrarse' %}" method="POST" >
+            <header class="mb-4">
+                <h4 class="card-title">Registrarse</h4>
+            </header>
+            <form action="{% url 'registrarse' %}" method="POST">
                 {% csrf_token %}
 
-                    <div class="form-row">
-                        <div class="col form-group">
-                            <label>Nombre</label>
-                              {{ form.nombre }}
-                        </div> <!-- form-group end.// -->
-                        <div class="col form-group">
-                            <label>Apellido</label>
-                            {{ form.apellido }}
-                        </div> <!-- form-group end.// -->
-                    </div> <!-- form-row end.// -->
-                    <div class="form-group">
-                        <label>Email</label>
-                        {{ form.email }}
+                <div class="form-row">
+                    <div class="col form-group">
+                        <label>Nombre</label>
+                        {{ form.nombre }}
                     </div> <!-- form-group end.// -->
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                          <label>Teléfono</label>
-                          {{ form.telefono }}
-                        </div> <!-- form-group end.// -->
-                    </div> <!-- form-row.// -->
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Contraseña</label>
-                            {{ form.password }}
-                        </div> <!-- form-group end.// --> 
-                        <div class="form-group col-md-6">
-                            <label>Confirmar contraseña</label>
-                            {{ form.confirmar_password }}
-                        </div> <!-- form-group end.// -->  
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary btn-block"> Register  </button>
-                    </div> <!-- form-group// -->      
+                    <div class="col form-group">
+                        <label>Apellido</label>
+                        {{ form.apellido }}
+                    </div> <!-- form-group end.// -->
+                </div> <!-- form-row end.// -->
+                <div class="form-group">
+                    <label>Email</label>
+                    {{ form.email }}
+                </div> <!-- form-group end.// -->
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Contraseña</label>
+                        {{ form.password }}
+                    </div> <!-- form-group end.// -->
+                    <div class="form-group col-md-6">
+                        <label>Confirmar contraseña</label>
+                        {{ form.confirmar_password }}
+                    </div> <!-- form-group end.// -->
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">Register</button>
+                </div> <!-- form-group// -->
                 {{ form.email.errors }}
-                {{ form.non_field_errors }}        
-                </form>
-            </article><!-- card-body.// -->
-        </div> <!-- card .// -->
-        <p class="text-center mt-4">¿Ya tienes cuenta? <a href="{% url 'login' %}">Entrar</a></p>
-        <br><br>
+                {{ form.non_field_errors }}
+            </form>
+        </article><!-- card-body.// -->
+    </div> <!-- card .// -->
+    <p class="text-center mt-4">¿Ya tienes cuenta? <a href="{% url 'login' %}">Entrar</a></p>
+    <br><br>
     <!-- ============================ COMPONENT REGISTER  END.// ================================= -->
-    
-    
-    </section>
+
+
+</section>
 
 {% endblock content %}

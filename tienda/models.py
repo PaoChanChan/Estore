@@ -1,5 +1,6 @@
 from django.db import models
 from categoria.models import Categoria
+from cuentas.models import Cuenta
 from django.urls import reverse
 
 
@@ -16,9 +17,14 @@ class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
+    # vendedor = models.ForeignKey(Cuenta, on_delete=models.CASCADE)
     
     def get_url(self):
         return reverse('detalle_producto', args=[self.categoria.slug, self.slug])
+    
+    # @property
+    # def email_vendedor(self):
+    #     return self.vendedor.email
     
     def __str__(self):
         return self.nombre_producto
@@ -48,3 +54,29 @@ class Variaciones(models.Model):
     
     def __str__(self):
         return self.valor_variacion
+    
+class Opiniones(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(Cuenta, on_delete=models.CASCADE)
+    asunto = models.CharField(max_length=100, blank=True)
+    opinion = models.TextField(max_length=500, blank=True)
+    puntuacion = models.FloatField()
+    ip = models.CharField(max_length=20, blank=True)
+    estado = models.BooleanField(default=True)
+    fecha = models.DateTimeField(auto_now_add=True)
+    modificacion = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.asunto
+
+
+class GaleriaProducto(models.Model):
+    producto = models.ForeignKey(Producto, default=None, on_delete=models.CASCADE)
+    imagen = models.ImageField(upload_to='tienda/productos', max_length=255)
+
+    def __str__(self):
+        return self.product.nombre_producto
+
+    class Meta:
+        verbose_name = 'galeriaproducto'
+        verbose_name_plural = 'galeria producto'

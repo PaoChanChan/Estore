@@ -1,17 +1,23 @@
-from django.shortcuts import render, get_object_or_404
-from .models import Producto, Variaciones
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Producto, Variaciones, GaleriaProducto, Opiniones
 from categoria.models import Categoria
 from carts.models import CartItem
 from django.db.models import Q
 from django.db.models.functions import Lower
+
 from unidecode import unidecode
 from carts.views import _cart_id
 from django.http import HttpResponse
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from .forms import OpinionesForm
+from django.contrib import messages
+from pedidos.models import ProductoPedido
+
 # Create your views here.
 
 def tienda(request, categoria_slug=None):
     """Función que muestra todos los artículos en "escaparate" y los distribuye por páginas"""
+    
     categorias = None
     productos = None
     
@@ -30,8 +36,8 @@ def tienda(request, categoria_slug=None):
         paged_productos = paginator.get_page(page)
         numero_productos = productos.count()
     
-     # Imprimir el número de productos obtenidos en la consola del servidor
-    print("Número de productos:", len(productos))
+     
+    #print("Número de productos:", len(productos))
     
     context = {
         'productos': paged_productos,
@@ -51,13 +57,32 @@ def detalle_producto(request, categoria_slug, producto_slug):
     except Exception as e:
         raise e
     
-    colores = Variaciones.objects.filter(producto=producto_unico, variacion_categoria='color')
-    marcas = Variaciones.objects.filter(producto=producto_unico, variacion_categoria='marca')
+    if request.user.is_authenticated:
+        try:
+            producto_pedido = ProductoPedido.objects.filter(usuario=request.user, producto_id=producto_unico.id).exists()
+        except ProductoPedido.DoesNotExist:
+            producto_pedido = None
+    else:
+        producto_pedido = None
+
+    # Opiniones:
+    opiniones = Opiniones.objects.filter(producto_id=producto_unico.id, estado=True)
+
+    # Galeria:
+    galeria_producto = GaleriaProducto.objects.filter(producto_id=producto_unico.id)
+    
+    # Variaciones:
+    colores = Variaciones.objects.filter(producto=producto_unico, variacion_categoria='color', is_active=True)
+    marcas = Variaciones.objects.filter(producto=producto_unico, variacion_categoria='marca', is_active=True)
+
     context = {
         'producto_unico': producto_unico,
-        'in_cart' : in_cart,
-        'colores' : colores,
-        'marcas' : marcas
+        'in_cart'       : in_cart,
+        'producto_pedido': producto_pedido,
+        'opiniones': opiniones,
+        'galeria_producto': galeria_producto,
+        'colores': colores,
+        'marcas': marcas,
     }
         
     return render(request, 'tienda/detalle_producto.html', context)
@@ -66,6 +91,7 @@ def detalle_producto(request, categoria_slug, producto_slug):
 
 def search(request):
     """Función de motor de búsqueda"""
+    
     if 'keyword' in request.GET:
         keyword = request.GET['keyword']
         
@@ -83,3 +109,26 @@ def search(request):
 
     }
     return render(request, 'tienda/tienda.html', context)
+
+def publicar_opinion(request, producto_id):
+    url = request.META.get('HTTP_REFERER')
+    if request.method == 'POST':
+        try:
+            opiniones = Opiniones.objects.get(id_usuario=request.user.id, producto_id=producto_id)
+            form = Opiniones(request.POST, instance=opiniones)
+            form.save()
+            messages.success(request, 'Se ha modificado tu comentario.')
+            return redirect(url)
+        except Opiniones.DoesNotExist:
+            form = OpinionesForm(request.POST)
+            if form.is_valid():
+                data = Opiniones()
+                data.subject = form.cleaned_data['asunto']
+                data.rating = form.cleaned_data['puntuacion']
+                data.review = form.cleaned_data['opinion']
+                data.ip = request.META.get('REMOTE_ADDR')
+                data.producto_id = producto_id
+                data.id_usuario = request.user.id
+                data.save()
+                messages.success(request, '¡Gracias! Nos importa mucho tu opinión.')
+                return redirect(url)

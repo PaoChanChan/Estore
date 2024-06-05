@@ -1,11 +1,12 @@
 from django import forms
-from .models import Cuenta
+from .models import Cuenta, PerfilUsuario
 
 
 class RegistroForm(forms.ModelForm):
     
     password = forms.CharField(widget=forms.PasswordInput(attrs={
         'placeholder' : 'Introducir contraseña',
+        'class' : 'form-control'
     }))
     
     confirmar_password = forms.CharField(widget=forms.PasswordInput(attrs={
@@ -15,6 +16,18 @@ class RegistroForm(forms.ModelForm):
     class Meta:
         model = Cuenta
         fields = ['nombre', 'apellido', 'email', 'telefono', 'password']
+        
+    def clean(self):
+        """Función para verificar que la contraseña y su confirmación son las mismas """
+        
+        cleaned_data = super(RegistroForm, self).clean()
+        password = cleaned_data.get('password')
+        confirmar_password = cleaned_data.get('confirmar_password')
+        
+        if password != confirmar_password:
+            raise forms.ValidationError(
+                'Las contraseñas no coinciden'
+            )
         
     def __init__(self, *args, **kwargs):
         """Función que aplica el estilo del formulario a cada campo de texto"""
@@ -29,15 +42,23 @@ class RegistroForm(forms.ModelForm):
         for field in self.fields:
             self.fields[field].widget.attrs['class'] = 'form-control'
             
-    def clean(self):
-        """Función para verificar que la contraseña y su confirmación son las mismas """
-        
-        cleaned_data = super(RegistroForm, self).clean()
-        password = cleaned_data.get('password')
-        confirmar_password = cleaned_data.get('confirmar_password')
-        
-        if password != confirmar_password:
-            raise forms.ValidationError(
-                'Las contraseñas no coinciden'
-            )
-        
+   
+class UsuarioForm(forms.ModelForm):
+    class Meta:
+        model = Cuenta
+        fields = ('nombre', 'apellido', 'telefono')
+
+    def __init__(self, *args, **kwargs):
+        super(UsuarioForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs['class'] = 'form-control'
+
+class PerfilUsuarioForm(forms.ModelForm):
+    class Meta:
+        model = PerfilUsuario
+        fields = ('direccion_1', 'direccion_2', 'ciudad', 'municipio', 'pais')
+
+    def __init__(self, *args, **kwargs):
+        super(PerfilUsuarioForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs['class'] = 'form-control'
