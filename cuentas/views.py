@@ -30,6 +30,7 @@ def registrarse(request):
                                                   username=username,
                                                   email=email,
                                                   password=password)
+            usuario.is_active = True
             usuario.save()
             print(usuario.nombre)
             

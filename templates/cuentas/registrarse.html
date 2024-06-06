@@ -4,7 +4,6 @@
 
 <section class="section-content padding-y">
 
-    <!-- ============================ COMPONENT REGISTER   ================================= -->
     <div class="card mx-auto" style="max-width:520px; margin-top:40px;">
         <article class="card-body">
             {% include 'includes/alerts.html' %}
@@ -13,44 +12,43 @@
             </header>
             <form action="{% url 'registrarse' %}" method="POST">
                 {% csrf_token %}
-
                 <div class="form-row">
                     <div class="col form-group">
                         <label>Nombre</label>
                         {{ form.nombre }}
-                    </div> <!-- form-group end.// -->
+                        {{ form.nombre.errors }}
+                    </div>
                     <div class="col form-group">
                         <label>Apellido</label>
                         {{ form.apellido }}
-                    </div> <!-- form-group end.// -->
-                </div> <!-- form-row end.// -->
+                        {{ form.apellido.errors }}
+                    </div>
+                </div>
                 <div class="form-group">
                     <label>Email</label>
                     {{ form.email }}
-                </div> <!-- form-group end.// -->
+                    {{ form.email.errors }}
+                </div>
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <label>Contraseña</label>
                         {{ form.password }}
-                    </div> <!-- form-group end.// -->
+                        {{ form.password.errors }}
+                    </div>
                     <div class="form-group col-md-6">
                         <label>Confirmar contraseña</label>
                         {{ form.confirmar_password }}
-                    </div> <!-- form-group end.// -->
+                        {{ form.confirmar_password.errors }}
+                    </div>
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-block">Register</button>
-                </div> <!-- form-group// -->
-                {{ form.email.errors }}
+                    <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
+                </div>
                 {{ form.non_field_errors }}
             </form>
-        </article><!-- card-body.// -->
-    </div> <!-- card .// -->
+        </article>
+    </div>
     <p class="text-center mt-4">¿Ya tienes cuenta? <a href="{% url 'login' %}">Entrar</a></p>
-    <br><br>
-    <!-- ============================ COMPONENT REGISTER  END.// ================================= -->
-
-
 </section>
 
 {% endblock content %}
