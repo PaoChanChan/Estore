@@ -32,13 +32,17 @@ def registrarse(request):
                                                   password=password)
             usuario.is_active = True
             usuario.save()
+            messages.success(request, 'Cuenta creada con éxito.')
+
+            
             print(usuario.nombre)
             
             #  CREACIÓN DE PERFIL DE USUARIO
             perfil = PerfilUsuario(usuario=usuario, direccion_1='', direccion_2='',
                                     ciudad='', municipio='', pais='')
-            perfil.save()
             perfil.id_usuario = usuario.id
+            perfil.save()
+            messages.success(request, 'Perfil creado con éxito.')
             
 
     else:
