@@ -13,7 +13,7 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title mb-4">Dirección de facturación</h4>
-                    <form action="" method="POST">
+                    <form action="{% url 'hacer_pedido' %}" method="POST">
                         {% csrf_token %}
                         <div class="form-row">
                             <div class="col form-group">
@@ -21,8 +21,8 @@
                                 <input type="text" name="nombre" class="form-control" required>
                             </div>
                             <div class="col form-group">
-                                <label for="apellidos">Apellidos</label>
-                                <input type="text" name="apellidos" class="form-control" required>
+                                <label for="apellido">Apellido</label>
+                                <input type="text" name="apellido" class="form-control" required>
                             </div>
                         </div>
                         <div class="form-row">
@@ -37,12 +37,12 @@
                         </div>
                         <div class="form-row">
                             <div class="col form-group">
-                                <label for="direccion_linea1">Dirección línea 1</label>
-                                <input type="text" name="direccion_linea1" class="form-control" required>
+                                <label for="direccion_1">Dirección línea 1</label>
+                                <input type="text" name="direccion_1" class="form-control" required>
                             </div>
                             <div class="col form-group">
-                                <label for="direccion_linea2">Dirección línea 2</label>
-                                <input type="text" name="direccion_linea2" class="form-control">
+                                <label for="direccion_2">Dirección línea 2</label>
+                                <input type="text" name="direccion_2" class="form-control">
                             </div>
                         </div>
                         <div class="form-row">
@@ -51,8 +51,8 @@
                                 <input type="text" name="municipio" class="form-control" required>
                             </div>
                             <div class="col form-group">
-                                <label for="provincia">Provincia</label>
-                                <input type="text" name="provincia" class="form-control" required>
+                                <label for="ciudad">Ciudad</label>
+                                <input type="text" name="ciudad" class="form-control" required>
                             </div>
                         </div>
                         <div class="form-row">
@@ -62,8 +62,8 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="notas_pedido">Notas del pedido</label>
-                            <textarea name="notas_pedido" rows="2" class="form-control"></textarea>
+                            <label for="nota_pedido">Nota del pedido</label>
+                            <textarea name="nota_pedido" rows="2" class="form-control"></textarea>
                         </div>
                     
                 </div>

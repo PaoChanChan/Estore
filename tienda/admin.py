@@ -6,7 +6,7 @@ from .models import Producto, Variaciones, Opiniones, GaleriaProducto
 
 #@admin_thumbnails.thumbnail('imagen')
 class ProductGalleryInline(admin.TabularInline):
-    modelo = GaleriaProducto
+    model = GaleriaProducto
     extra = 1
 
 class ProductoAdmin(admin.ModelAdmin):

@@ -41,7 +41,7 @@ class Pedido(models.Model):
     iva = models.FloatField()
     estado = models.CharField(max_length=10, choices=STATUS, default='New')
     ip = models.CharField(blank=True, max_length=20)
-    confirmado = models.BooleanField(default=False)
+    confirmado = models.BooleanField(default=True)
     fecha = models.DateTimeField(auto_now_add=True)
     actualizacion = models.DateTimeField(auto_now=True)
 
@@ -71,6 +71,5 @@ class ProductoPedido(models.Model):
     def __str__(self):
         return self.producto.nombre_producto
 
-"""class Ventas(models.Model):
-    producto_pedido = models.ForeignKey(ProductoPedido, on_delete=models.CASCADE)"""
+
     

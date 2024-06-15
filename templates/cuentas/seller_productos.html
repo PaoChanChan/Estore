@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="section-conten padding-y bg">
+    {% include 'includes/alerts.html' %}
+
+    <div class="container">
+        <div class="row">
+            <aside class="col-md-3">
+                <!--   SIDEBAR   -->
+                <ul class="list-group">
+                    <a class="list-group-item" href="{% url 'seller_dashboard' %}"> Gráfica de ventas </a>
+                    <a class="list-group-item" href="{% url 'seller_productos' %}"> Stock de productos en venta </a>
+                    <a class="list-group-item" href="#"> Configuración </a>
+                </ul>
+                <br>
+                <a class="btn btn-light btn-block" href="{% url 'logout' %}"> <i class="fa fa-power-off"></i> <span class="text">Salir</span> </a> 
+                <!--   SIDEBAR .//END   -->
+            </aside>
+            <main class="col-md-9">
+                <article class="card">
+                    <header class="card-header">
+                        <strong class="d-inline-block mr-3">Productos y stock</strong>
+                    </header>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Precio</th>
+                                        <th>Stock Disponible / Máximo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for producto in productos_vendedor %}
+                                    <tr>
+                                        <td>
+                                            <figure class="itemside align-items-center">
+                                                <div class="aside"><img src="{{ producto.imagen.url }}" class="img-sm" alt=""></div>
+                                                <figcaption class="info">
+                                                    <a href="{{ producto.get_url }}" class="title text-dark">{{ producto.nombre_producto }}</a>
+                                                    <p class="text-muted small">
+                                                        {% if producto.variaciones.all %}
+                                                            {% for variacion in producto.variaciones.all %}
+                                                                {{ variacion.variacion_categoria|capfirst }} : {{ variacion.valor_variacion|capfirst }}<br>
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    </p>
+                                                </figcaption>
+                                            </figure>
+                                        </td>
+                                        <td>
+                                            <div class="price-wrap">
+                                                <var class="price">{{ producto.precio }}€</var>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="stock-wrap">
+                                                <span class="stock" style="color: {% if producto.stock_disponible < stock_al_90 %} red {% else %} green {% endif %};">
+                                                    {{ producto.stock_disponible }}
+                                                </span>
+                                                / {{ producto.stock_maximo }}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div> <!-- table-responsive .end// -->
+                    </div> <!-- card-body .// -->
+                </article> <!-- card.// --> 
+            </main>
+        </div> <!-- row.// -->
+    </div> <!-- container.// -->
+</section>
+{% endblock content %}

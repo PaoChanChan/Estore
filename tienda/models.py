@@ -2,6 +2,7 @@ from django.db import models
 from categoria.models import Categoria
 from cuentas.models import Cuenta
 from django.urls import reverse
+from django.conf import settings
 
 
 # Create your models here.
@@ -17,6 +18,8 @@ class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
+    vendedor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='productos', default=2)  # Aquí '1' es el ID del usuario predeterminado
+
     # vendedor = models.ForeignKey(Cuenta, on_delete=models.CASCADE)
     
     def get_url(self):

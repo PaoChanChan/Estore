@@ -23,9 +23,11 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    #path('', include("django.contrib.auth.urls")),  #  AÑADIDA NUEVA PARA ARREGLAR LOGIN
     path('', views.home, name='home'),
     path('tienda/', include('tienda.urls')),
     path('cart/', include('carts.urls')),
     path('cuentas/', include('cuentas.urls')),
+    
+    # Pedidos:
+    path('pedidos/', include('pedidos.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

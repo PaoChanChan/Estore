@@ -63,23 +63,22 @@
         <div class="col-lg-3 col-sm-6 col-8 order-2 order-lg-3">
                     <div class="d-flex justify-content-end mb-3 mb-lg-0">
                         {% if usuario.id is None %}
-                        <div class="widget-header">
-                            <small class="title text-muted">¡Hola!</small>
-                            <div> 
-                                <a href="{% url 'login' %}">Entra</a> <span class="dark-transp"> | </span>
-                                <a href="{% url 'registrarse' %}"> Regístrate</a>
-                            </div>
-                        </div>
-                        {% else %}
-                        <div class="widget-header">
-                            <small class="title text-muted">¡Hola, {{ usuario.nombre }} !</small>
-                            <div> 
-                                <a href="{% url 'dashboard' %}">Mi panel</a> <span class="dark-transp"> | </span>
-                                <a href="{% url 'registrarse' %}"> Salir</a>
-                            </div>
-                        </div>
-
-                        {% endif %}
+          <div class="widget-header">
+            <small class="title text-muted">¡Hola!</small>
+            <div>
+              <a href="{% url 'login' %}">Entrar</a> <span class="dark-transp"> | </span>
+              <a href="{% url 'registrarse' %}"> Registrarse</a>
+            </div>
+          </div>
+          {% else %}
+          <div class="widget-header">
+            <small class="title text-muted">Hola, {{usuario.nombre}}!</small>
+            <div>
+              <a href="{% url 'dashboard' %}">Mi panel</a> <span class="dark-transp"> | </span>
+              <a href="{% url 'logout' %}"> Salir</a>
+            </div>
+          </div>
+          {% endif %}
                         <a href="{% url 'cart' %}" class="widget-header pl-3 ml-3">
                             <div class="icon icon-sm rounded-circle border"><i class="fa fa-shopping-cart"></i></div>
                             <span class="badge badge-pill badge-danger notify">{{ cuenta_carrito }}</span>

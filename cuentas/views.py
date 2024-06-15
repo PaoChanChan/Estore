@@ -6,6 +6,7 @@ from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_protect
+from tienda.models import Producto
 
 from carts.views import _cart_id
 from carts.models import Cart, CartItem
@@ -56,7 +57,6 @@ def registrarse(request):
 @csrf_protect
 def login(request):
     """Función para acceder a la cuenta"""
-    
     if request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
@@ -64,61 +64,57 @@ def login(request):
         usuario = auth.authenticate(email=email, password=password)
         
         if usuario is not None:
-            
-            try:
-                #print("Try Block")
-                cart = Cart.objects.get(cart_id=_cart_id(request))
-                is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
-                #print(is_cart_item_exists)
-                if is_cart_item_exists:
-                    cart_item = CartItem.objects.filter(cart=cart)
-                    #print(cart_item)
-                    
-                    # Extraer variaciones de los productos por el id del carrito                   
-                    variacion_productos = []
-                    for item in cart_item:
-                        variacion = item.variaciones.all()
-                        variacion_productos.append(list(variacion))               
-
-                    # Extraer los items del carrito del usuario para acceder a las variaciones de sus productos
-                    cart_item = CartItem.objects.filter(usuario=usuario)
-                    lista_variaciones = item.variaciones.all()
-                    lista_variaciones = []
-                    lista_id = []
-                    for item in cart_item:
-                        variacion = item.variaciones.all()
-                        lista_variaciones.append(list(variacion))
-                        id.append(item.id)
-                        
-                    for pr in variacion_productos:
-                        if pr in lista_variaciones:
-                            index = lista_variaciones.index(pr)
-                            item_id = id[index]
-                            item = CartItem.objects.get(id=item_id)
-                            item.cantidad +=1
-                            item.usuario=usuario
-                            item.save()
-                        else:
-                            cart_item = CartItem.objects.filter(cart=cart)
-                            for item in cart_item:
-                                item.usuario=usuario
-                                item.save()
-            except:
-                #print("Except Block")
-                pass
-            
             auth.login(request, usuario)
-            messages.success(request, 'Estás conectado/a.')
-            url = request.META.get('HTTP_REFERER')
-            try:
-                query = requests.utils.urlparse(url).query
-                # next=/cart/checkout/
-                params = dict(x.split('=') for x in query.split('&'))
-                if 'next' in params:
-                    nextPage = params['next']
-                    return redirect(nextPage)
-            except:
-             return redirect('dashboard')
+            if usuario.is_seller:
+                return redirect('seller_dashboard')
+            else:
+                try:
+                    cart = Cart.objects.get(cart_id=_cart_id(request))
+                    is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
+                    if is_cart_item_exists:
+                        cart_item = CartItem.objects.filter(cart=cart)
+                        
+                        # Extraer variaciones de los productos por el id del carrito                   
+                        variacion_productos = []
+                        for item in cart_item:
+                            variacion = item.variaciones.all()
+                            variacion_productos.append(list(variacion))               
+
+                        # Extraer los items del carrito del usuario para acceder a las variaciones de sus productos
+                        cart_item = CartItem.objects.filter(usuario=usuario)
+                        lista_variaciones = []
+                        lista_id = []
+                        for item in cart_item:
+                            variacion = item.variaciones.all()
+                            lista_variaciones.append(list(variacion))
+                            lista_id.append(item.id)
+                        
+                        for pr in variacion_productos:
+                            if pr in lista_variaciones:
+                                index = lista_variaciones.index(pr)
+                                item_id = lista_id[index]
+                                item = CartItem.objects.get(id=item_id)
+                                item.cantidad += 1
+                                item.usuario = usuario
+                                item.save()
+                            else:
+                                cart_item = CartItem.objects.filter(cart=cart)
+                                for item in cart_item:
+                                    item.usuario = usuario
+                                    item.save()
+                except Cart.DoesNotExist:
+                    pass
+                
+                messages.success(request, 'Estás conectado/a.')
+                url = request.META.get('HTTP_REFERER')
+                try:
+                    query = requests.utils.urlparse(url).query
+                    params = dict(x.split('=') for x in query.split('&'))
+                    if 'next' in params:
+                        nextPage = params['next']
+                        return redirect(nextPage)
+                except:
+                    return redirect('dashboard')
         
         else:
             messages.error(request, 'Credenciales erróneas. Inténtalo de nuevo.')
@@ -137,18 +133,19 @@ def logout(request):
 
 @login_required(login_url = 'login')  
 def dashboard(request):
-    """Función para mostrar el dashboard de la cuenta."""
+    """Función para mostrar el dashboard del cliente."""
     
-    pedidos = Pedido.objects.order_by('-fecha').filter(usuario_id=request.user.id, confirmado=True)
+    pedidos = Pedido.objects.order_by('-fecha').filter(usuario=request.user.id, confirmado=True)
     cantidad_pedidos = pedidos.count()
     
-    perfil_usuario = PerfilUsuario.objects.get(usuario_id=request.user.id)
+    perfil_usuario = PerfilUsuario.objects.get(usuario=request.user.id)
     
     context = {
         'cantidad_pedidos' : cantidad_pedidos,
         'perfil_usuario' : perfil_usuario,
     }
     return render(request, 'cuentas/dashboard.html', context)
+ 
     
 @login_required(login_url='login')
 def mis_pedidos(request):   
@@ -160,19 +157,33 @@ def mis_pedidos(request):
     }
     return render(request, 'cuentas/mis_pedidos.html', context)
 
-# @login_required(login_url='login')
-# def mis_ventas(request):
-#     """Función para mostrar las ventas del usuario vendedor"""
+
+
+@login_required(login_url = 'login')  
+def seller_dashboard(request):
+    """Función para mostrar el dashboard del vendedor y la gráfica de ventas."""
     
-#     if request.user.is_seller == True:
-        
-        
-        
-        
-#     else:
     
-#         return redirect('cuentas/mis_pedidos.html')
     
+
+    return render(request, 'cuentas/seller_dashboard.html')
+
+@login_required(login_url = 'login')  
+def seller_productos(request):
+    """Función para mostrar el listado de productos y stock del vendedor."""
+    
+    productos_vendedor = Producto.objects.filter(vendedor=request.user).order_by('-stock_disponible')
+    stock_al_90 = None 
+    
+    for producto in productos_vendedor:
+        stock_al_90 = 0.9 * producto.stock_maximo
+    
+    context = {
+        'productos_vendedor': productos_vendedor,
+        'stock_al_90' : stock_al_90,
+    }
+    
+    return render(request, 'cuentas/seller_productos.html', context)
     
 @login_required(login_url='login')
 def editar_perfil(request): 
