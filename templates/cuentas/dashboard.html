@@ -12,8 +12,8 @@
 	<main class="col-md-9">
 		<article class="card">
 		<header class="card-header">
-			<strong class="d-inline-block mr-3">Iniciaste sesión como:</strong>
-			<span>{{ usuario.nombre }}</span>
+			<strong class="d-inline-block mr-3">Has iniciado sesión como:</strong>
+			<span>{{ user.full_name }}</span>
 		</header>
 		<div class="card-body">
 			<div class="row">
@@ -21,8 +21,8 @@
 			<div class="col-md-6">
 				<div class="card" style="text-align:center;">
 					<div class="card-body">
-						<h5 class="card-title">Pedidos</h5>
-						<h4>{{ orders_count }}</h4>
+						<h5 class="card-title">Todos tus pedidos</h5>
+						<h4>{{ cantidad_pedidos }}</h4>
 						<a href="{% url 'mis_pedidos' %}">Ver pedidos</a>
 					</div>
 				</div>
@@ -30,7 +30,15 @@
 			<div class="col-md-6">
 				<div class="card" style="text-align:center;">
 					<div class="card-body">
-						<p class="mb-0">{{ usuario.email }}</p>
+                        {% if perfil_usuario.foto_perfil %}
+						<img src="{{perfil_usuario.foto_perfil.url}}" alt="User Profile Picture" width="50" height="50" style="border-radius:50%;">
+                        {% endif %}
+                        <p class="mb-0">{{ user.email }}</p>
+						<p>{{ user.telefono }}</p>
+                        <p>{{ perfil_usuario.full_address }}</p>
+                        <p>{{ perfil_usuario.ciudad }}</p>
+                        <p>{{ perfil_usuario.municipio }}</p>
+                        <p>{{ perfil_usuario.pais }}</p>
 					</div>
 				</div>
 			</div>

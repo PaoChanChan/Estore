@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 # Create your models here.
 
 class CuentaManager(BaseUserManager):
-    def create_user(self, nombre, apellido, username, email, password=None):
+    def create_user(self, nombre, apellido, username, email, telefono, password=None):
         if not email:
             raise ValueError('El usuario debe tener un email')
         
@@ -17,6 +17,7 @@ class CuentaManager(BaseUserManager):
             username = username,
             nombre = nombre,
             apellido = apellido,
+            telefono = telefono
         )
         
         user.set_password(password)
@@ -65,6 +66,9 @@ class Cuenta(AbstractBaseUser):
     
     objects = CuentaManager()
     
+    def full_name(self):
+        return f"{self.nombre} {self.apellido}"
+    
     def __str__(self):
         return self.email
     
@@ -81,6 +85,7 @@ class PerfilUsuario(models.Model):
     usuario = models.OneToOneField(Cuenta, on_delete=models.CASCADE)
     direccion_1 = models.CharField(blank=True, max_length=100)
     direccion_2 = models.CharField(blank=True, max_length=100)
+    foto_perfil = models.ImageField(blank=True, upload_to='perfilusuario/')
     ciudad = models.CharField(blank=True, max_length=20)
     municipio = models.CharField(blank=True, max_length=20)
     pais = models.CharField(blank=True, max_length=20)

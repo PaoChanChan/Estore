@@ -15,7 +15,7 @@ class RegistroForm(forms.ModelForm):
     
     class Meta:
         model = Cuenta
-        fields = ['nombre', 'apellido', 'email', 'password']
+        fields = ['nombre', 'apellido', 'email', 'password', 'telefono']
         
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -38,7 +38,7 @@ class RegistroForm(forms.ModelForm):
         self.fields['nombre'].widget.attrs['placeholder'] = 'Nombre'
         self.fields['apellido'].widget.attrs['placeholder'] = 'Apellido'
         self.fields['email'].widget.attrs['placeholder'] = 'Email'
-        #self.fields['telefono'].widget.attrs['placeholder'] = 'Teléfono'
+        self.fields['telefono'].widget.attrs['placeholder'] = 'Teléfono'
         
         for field in self.fields:
             self.fields[field].widget.attrs['class'] = 'form-control'
@@ -58,7 +58,7 @@ class UsuarioForm(forms.ModelForm):
 class PerfilUsuarioForm(forms.ModelForm):
     class Meta:
         model = PerfilUsuario
-        fields = ('direccion_1', 'direccion_2', 'ciudad', 'municipio', 'pais')
+        fields = ('direccion_1', 'direccion_2', 'ciudad', 'municipio', 'pais', 'foto_perfil')
 
     def __init__(self, *args, **kwargs):
         super(PerfilUsuarioForm, self).__init__(*args, **kwargs)

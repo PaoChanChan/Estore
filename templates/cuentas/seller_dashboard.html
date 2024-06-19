@@ -12,7 +12,7 @@
             <ul class="list-group">
                 <a class="list-group-item active" href="{% url 'seller_dashboard' %}"> Gráfica de ventas </a>
                 <a class="list-group-item" href="{% url 'seller_productos' %}"> Stock de productos en venta </a>
-                <a class="list-group-item" href="#"> Configuración </a>
+                <a class="list-group-item" href="{% url 'editar_perfil' %}"> Editar perfil </a>
             </ul>
             <br>
             <a class="btn btn-light btn-block" href="{% url 'logout' %}"> <i class="fa fa-power-off"></i> <span class="text">Salir</span> </a> 
@@ -22,6 +22,15 @@
             <article class="card">
             <header class="card-header">
                 <h5 class="card-header">Ventas</h5>
+                <div>
+                    <h3>Ventas Mensuales (Cantidad de Productos Vendidos)</h3>
+                    {{ grafico_ventas|safe }}
+                </div>
+                
+                <div>
+                    <h3>Beneficios Mensuales</h3>
+                    {{ grafico_beneficios|safe }}
+                </div>
                 
             </header>
             <div class="card">

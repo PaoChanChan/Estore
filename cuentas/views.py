@@ -12,6 +12,10 @@ from carts.views import _cart_id
 from carts.models import Cart, CartItem
 import requests
 
+import pandas as pd
+import plotly.express as px
+import plotly.io as pio
+
 # Create your views here.
 
 def registrarse(request):
@@ -25,12 +29,14 @@ def registrarse(request):
             email = form.cleaned_data['email']
             username = email.split("@")[0]
             password = form.cleaned_data['password']
+            telefono = form.cleaned_data['telefono']
             
             usuario = Cuenta.objects.create_user(nombre=nombre,
                                                   apellido=apellido,
                                                   username=username,
                                                   email=email,
-                                                  password=password)
+                                                  password=password,
+                                                  telefono=telefono)
             usuario.is_active = True
             usuario.save()
             messages.success(request, 'Cuenta creada con éxito.')
@@ -44,6 +50,13 @@ def registrarse(request):
             perfil.id_usuario = usuario.id
             perfil.save()
             messages.success(request, 'Perfil creado con éxito.')
+            
+             # Iniciar sesión automáticamente
+            usuario = auth.authenticate(email=email, password=password)
+            if usuario is not None:
+                auth.login(request, usuario)
+                messages.success(request, 'Registrado y conectado con éxito.')
+                return redirect('dashboard')
             
 
     else:
@@ -163,10 +176,49 @@ def mis_pedidos(request):
 def seller_dashboard(request):
     """Función para mostrar el dashboard del vendedor y la gráfica de ventas."""
     
+        # Extraer los datos de la base de datos
+    producto_pedidos = ProductoPedido.objects.all()
     
+    # Crear un DataFrame de pandas
+    data = {
+        'producto': [],
+        'cantidad': [],
+        'precio_producto': [],
+        'fecha': [],
+    }
     
+    for pedido in producto_pedidos:
+        data['producto'].append(pedido.producto.nombre_producto)
+        data['cantidad'].append(pedido.cantidad)
+        data['precio_producto'].append(pedido.precio_producto)
+        data['fecha'].append(pedido.fecha)
 
-    return render(request, 'cuentas/seller_dashboard.html')
+    df = pd.DataFrame(data)
+    
+    # Convertir la columna de fecha en formato datetime
+    df['fecha'] = pd.to_datetime(df['fecha'])
+    
+    # Agrupar por mes y producto para obtener las ventas
+    df['mes'] = df['fecha'].dt.to_period('M').astype(str)
+    ventas_mensuales = df.groupby(['mes', 'producto']).agg({'cantidad': 'sum', 'precio_producto': 'sum'}).reset_index()
+
+    # Calcular los beneficios (asumiendo precio_producto como el beneficio unitario)
+    ventas_mensuales['beneficio'] = ventas_mensuales['cantidad'] * ventas_mensuales['precio_producto']
+    
+    # Crear los gráficos de ventas y beneficios usando Plotly
+    fig_ventas = px.bar(ventas_mensuales, x='mes', y='cantidad', color='producto', title='Ventas Mensuales (Cantidad de Productos Vendidos)')
+    fig_beneficios = px.bar(ventas_mensuales, x='mes', y='beneficio', color='producto', title='Beneficios Mensuales')
+    
+    # Convertir las figuras a HTML
+    grafico_ventas = pio.to_html(fig_ventas, full_html=False)
+    grafico_beneficios = pio.to_html(fig_beneficios, full_html=False)
+    
+    context = {
+        'grafico_ventas': grafico_ventas,
+        'grafico_beneficios': grafico_beneficios,
+    }
+    
+    return render(request, 'cuentas/seller_dashboard.html', context)
 
 @login_required(login_url = 'login')  
 def seller_productos(request):

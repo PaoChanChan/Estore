@@ -3,6 +3,7 @@ from categoria.models import Categoria
 from cuentas.models import Cuenta
 from django.urls import reverse
 from django.conf import settings
+from django.db.models import Avg, Count
 
 
 # Create your models here.
@@ -25,9 +26,20 @@ class Producto(models.Model):
     def get_url(self):
         return reverse('detalle_producto', args=[self.categoria.slug, self.slug])
     
-    # @property
-    # def email_vendedor(self):
-    #     return self.vendedor.email
+    def opiniones_media(self):
+        opiniones = Opiniones.objects.filter(producto=self, estado=True).aggregate(media=Avg('puntuacion'))
+        avg = 0
+        if opiniones['media'] is not None:
+            avg=float(opiniones['media'])
+            return avg
+    
+    def opiniones_count(self):
+        opiniones = Opiniones.objects.filter(producto=self, estado=True).aggregate(count=Count('id'))
+        count = 0
+        if opiniones['count'] is not None:
+            count=int(opiniones['count'])
+            return count
+
     
     def __str__(self):
         return self.nombre_producto

@@ -57,6 +57,7 @@ def detalle_producto(request, categoria_slug, producto_slug):
     except Exception as e:
         raise e
     
+    # Con esto confirmamos que el producto ha sido adquirido por el usuario para permitirle hacer una reseña:
     if request.user.is_authenticated:
         try:
             producto_pedido = ProductoPedido.objects.filter(usuario=request.user, producto_id=producto_unico.id).exists()
@@ -65,7 +66,7 @@ def detalle_producto(request, categoria_slug, producto_slug):
     else:
         producto_pedido = None
 
-    # Opiniones:
+    # Mostrar opiniones:
     opiniones = Opiniones.objects.filter(producto_id=producto_unico.id, estado=True)
 
     # Galeria:
@@ -114,7 +115,7 @@ def publicar_opinion(request, producto_id):
     url = request.META.get('HTTP_REFERER')
     if request.method == 'POST':
         try:
-            opiniones = Opiniones.objects.get(id_usuario=request.user.id, producto_id=producto_id)
+            opiniones = Opiniones.objects.get(usuario__id=request.user.id, producto__id=producto_id)
             form = Opiniones(request.POST, instance=opiniones)
             form.save()
             messages.success(request, 'Se ha modificado tu comentario.')
@@ -123,12 +124,12 @@ def publicar_opinion(request, producto_id):
             form = OpinionesForm(request.POST)
             if form.is_valid():
                 data = Opiniones()
-                data.subject = form.cleaned_data['asunto']
-                data.rating = form.cleaned_data['puntuacion']
-                data.review = form.cleaned_data['opinion']
+                data.asunto = form.cleaned_data['asunto']
+                data.puntuacion = form.cleaned_data['puntuacion']
+                data.opinion = form.cleaned_data['opinion']
                 data.ip = request.META.get('REMOTE_ADDR')
                 data.producto_id = producto_id
-                data.id_usuario = request.user.id
+                data.usuario_id= request.user.id
                 data.save()
                 messages.success(request, '¡Gracias! Nos importa mucho tu opinión.')
                 return redirect(url)

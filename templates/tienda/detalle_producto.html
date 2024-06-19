@@ -23,7 +23,16 @@
       <article class="content-body">
       
         <h2 class="title">{{ producto_unico.nombre_producto }}</h2>
-          
+        <div class="rating-star">
+            <span>
+                <i class="fa fa-star{% if producto_unico.opiniones_media < 0.5 %} -half-o{% elif producto_unico.opiniones_media >= 0.5 and producto_unico.opiniones_media < 1 %}-half-o {% endif %}" aria-hidden="true"></i>
+                <i class="fa fa-star{% if producto_unico.opiniones_media < 1.5 %} -half-o{% elif producto_unico.opiniones_media >= 1.5 and producto_unico.opiniones_media < 2 %}-half-o {% endif %}" aria-hidden="true"></i>
+                <i class="fa fa-star{% if producto_unico.opiniones_media < 2.5 %} -half-o{% elif producto_unico.opiniones_media >= 2.5 and producto_unico.opiniones_media < 3 %}-half-o {% endif %}" aria-hidden="true"></i>
+                <i class="fa fa-star{% if producto_unico.opiniones_media < 3.5 %} -half-o{% elif producto_unico.opiniones_media >= 3.5 and producto_unico.opiniones_media < 4 %}-half-o {% endif %}" aria-hidden="true"></i>
+                <i class="fa fa-star{% if producto_unico.opiniones_media < 4.5 %} -half-o{% elif producto_unico.opiniones_media >= 4.5 and producto_unico.opiniones_media < 5 %}-half-o {% endif %}" aria-hidden="true"></i>
+            <span> {{ producto_unico.opiniones_count }} opinion(es) </span>
+            </span>
+        </div>
           <div class="mb-3"> 
               <var class="price h4">{{ producto_unico.precio }}€</var> 
           </div> 
@@ -77,27 +86,84 @@
     
         <header class="section-heading">
             <h3>Opiniones de clientes </h3>  
+            <div class="rating-star">
+                <span>
+                    <i class="fa fa-star{% if producto_unico.opiniones_media < 0.5 %} -half-o{% elif producto_unico.opiniones_media >= 0.5 and producto_unico.opiniones_media < 1 %}-half-o {% endif %}" aria-hidden="true"></i>
+                    <i class="fa fa-star{% if producto_unico.opiniones_media < 1.5 %} -half-o{% elif producto_unico.opiniones_media >= 1.5 and producto_unico.opiniones_media < 2 %}-half-o {% endif %}" aria-hidden="true"></i>
+                    <i class="fa fa-star{% if producto_unico.opiniones_media < 2.5 %} -half-o{% elif producto_unico.opiniones_media >= 2.5 and producto_unico.opiniones_media < 3 %}-half-o {% endif %}" aria-hidden="true"></i>
+                    <i class="fa fa-star{% if producto_unico.opiniones_media < 3.5 %} -half-o{% elif producto_unico.opiniones_media >= 3.5 and producto_unico.opiniones_media < 4 %}-half-o {% endif %}" aria-hidden="true"></i>
+                    <i class="fa fa-star{% if producto_unico.opiniones_media < 4.5 %} -half-o{% elif producto_unico.opiniones_media >= 4.5 and producto_unico.opiniones_media < 5 %}-half-o {% endif %}" aria-hidden="true"></i>
+                </span>
+            </div>
             
         </header>
-    
+        <form action="{% url 'publicar_opinion' producto_unico.id %}" method="POST">
+            {% csrf_token %}
+            <h5>Tu opinión nos importa</h5>
+            <div>
+                <label>¿Qué te ha parecido este producto?</label>
+                <br>
+                <div class="puntuacion">
+                    <input type="radio" name="puntuacion" id="puntuacion10" value="5" required /><label for="puntuacion10" title="5"></label>
+                    <input type="radio" name="puntuacion" id="puntuacion9" value="4.5" required /><label for="puntuacion9" title="4.5" class="half"></label>
+                    <input type="radio" name="puntuacion" id="puntuacion8" value="4" required /><label for="puntuacion8" title="4"></label>
+                    <input type="radio" name="puntuacion" id="puntuacion7" value="3.5" required /><label for="puntuacion7" title="3.5" class="half"></label>
+                    <input type="radio" name="puntuacion" id="puntuacion6" value="3" required /><label for="puntuacion6" title="3"></label>
+                    <input type="radio" name="puntuacion" id="puntuacion5" value="2.5" required /><label for="puntuacion5" title="2.5" class="half"></label>
+                    <input type="radio" name="puntuacion" id="puntuacion4" value="2" required /><label for="puntuacion4" title="2"></label>
+                    <input type="radio" name="puntuacion" id="puntuacion3" value="1.5" required /><label for="puntuacion3" title="1.5" class="half"></label>
+                    <input type="radio" name="puntuacion" id="puntuacion2" value="1" required /><label for="puntuacion2" title="1"></label>
+                    <input type="radio" name="puntuacion" id="puntuacion1" value="0.5" required /><label for="puntuacion1" title="0.5" class="half"></label>
+                </div>
+<br>
+
+                Asunto:
+                <input type="text" class="form-control" name="asunto">
+                <br>
+                Opinión:
+                <textarea name="opinion" rows="4"  class="form-control"></textarea>
+                <br>
+                {% if request.user.is_authenticated %}
+                   {% if producto_pedido %}
+                <input type="submit" value="Publicar opinion" class="btn btn-primary">
+                    {% else %}
+                    <p> Debes haber comprado este producto para poder opinar sobre él.</p>
+                    {% endif %}
+                {% else %}
+                <p> Entra si quieres dejar tu opinión. <span><a href="{% url 'login' %}">Entrar</a></span></p>
+                {% endif %}
+            </div>
+    {% include 'includes/alerts.html' %}  
+        </form>
+    <br>
+
+    {% for opinion in opiniones %}
         <article class="box mb-3">
             <div class="icontext w-100">
-                <img src="{% static './images/avatars/avatar1.jpg' %}" class="img-xs icon rounded-circle">
                 <div class="text">
-                    <span class="date text-muted float-md-right">24.04.2020 </span>  
-                    <h6 class="mb-1">Mike John </h6>
+                    <span class="date text-muted float-md-right">{{ opinion.modificacion }} </span>  
+                    <h6 class="mb-1"> {{ opinion.usuario.full_name }} </h6>
+                    <div class="rating-star">
+                        <span>
+                            <i class="fa fa-star{% if opinion.puntuacion == 0.5 %} -half-o{% elif opinion.puntuacion < 1 %}-o {% endif %}" aria-hidden="true"></i>
+                            <i class="fa fa-star{% if opinion.puntuacion == 1.5 %} -half-o{% elif opinion.puntuacion < 2 %}-o {% endif %}" aria-hidden="true"></i>
+                            <i class="fa fa-star{% if opinion.puntuacion == 2.5 %} -half-o{% elif opinion.puntuacion < 3 %}-o {% endif %}" aria-hidden="true"></i>
+                            <i class="fa fa-star{% if opinion.puntuacion == 3.5 %} -half-o{% elif opinion.puntuacion < 4 %}-o {% endif %}" aria-hidden="true"></i>
+                            <i class="fa fa-star{% if opinion.puntuacion == 4.5 %} -half-o{% elif opinion.puntuacion < 5 %}-o {% endif %}" aria-hidden="true"></i>
+                        <span> {{ producto_unico.opiniones_count }} opinion(es) </span>
+                        </span>
+                    </div>
                     
                 </div>
             </div> <!-- icontext.// -->
             <div class="mt-3">
+                <h6> {{ opinion.asunto }} </h6>
                 <p>
-                    Dummy comment Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                    quis nostrud exercitation ullamco laboris nisi ut aliquip
+                    {{ opinion.opinion }}
                 </p>	
             </div>
         </article>
-    
+    {% endfor %}
         
     
         </div> <!-- col.// -->
